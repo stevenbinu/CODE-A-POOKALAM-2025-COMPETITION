@@ -4,7 +4,7 @@
 - **Name:** Steven Binu
 - **Institution/Company:** MBCCET Peermade
 - **GitHub:** @stevenbinu(https://github.com/your-stevenbinu)
-- **Programming Language Used:** HTML and[JavaScript
+- **Programming Language Used:** HTML and JavaScript
 
 ## 🎨 My Pookalam
 
