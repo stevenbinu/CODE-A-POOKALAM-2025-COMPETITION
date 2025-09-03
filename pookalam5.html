@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Animated Pookalam</title>
+<style>
+  body {
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    height:100vh; margin:0;
+    background:#fdfdf8;
+  }
+  canvas {
+    box-shadow:0 6px 18px rgba(164,167,164, 0.25);
+    border-radius:16px;
+  }
+</style>
+</head>
+<body>
+<canvas id="c" width="800" height="800"></canvas>
+
+<script>
+    let speed = 0.0025; 
+let spikeRadius = 320; 
+
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+const W = canvas.width, H = canvas.height;
+const cx = W/2, cy = H/2;
+
+function degToRad(d){ return d*Math.PI/180; }
+
+const palette = [
+  '#ffffff',
+  '#ffe27a',
+  '#ffb347',
+  '#ff6b35',
+  '#b30f0f',
+  '#7cfc00',
+  '#32cd32'
+];
+
+let progress = 0;
+
+function drawPetal(angle, r1, r2, bands, clipProgress=1){
+  const a = degToRad(angle);
+  const sweep = degToRad(60 * clipProgress);
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, r2, a - sweep/2, a + sweep/2, false);
+  ctx.arc(cx, cy, r1, a + sweep/2, a - sweep/2, true);
+  ctx.closePath();
+  ctx.clip();
+
+  const bandThickness = (r2-r1)/bands;
+  for(let b=0;b<bands;b++){
+    const rr1 = r1 + b*bandThickness;
+    const rr2 = rr1 + bandThickness;
+    const g = ctx.createRadialGradient(cx, cy, rr1*0.4, cx, cy, rr2);
+    g.addColorStop(0, palette[Math.max(0,b)]);
+    g.addColorStop(1, palette[Math.min(palette.length-1,b+1)]);
+    ctx.beginPath();
+    ctx.arc(cx,cy,rr2,a-sweep/2,a+sweep/2,false);
+    ctx.arc(cx,cy,rr1,a+sweep/2,a-sweep/2,true);
+    ctx.closePath();
+    ctx.fillStyle=g;
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+
+
+function drawStar(ratio){
+  const R=374, spikes=6, total=spikes*4;
+  const count=Math.floor(total*ratio);
+  ctx.save();
+  ctx.translate(cx,cy);
+
+  for(let layer=0;layer<4;layer++){
+    const s=R*(1-layer*0.15);
+    const color=palette[Math.min(palette.length-1,4-layer)];
+    ctx.save();
+    ctx.rotate(degToRad(layer*8));
+    for(let i=0;i<spikes;i++){
+      if(layer*spikes+i>=count) { ctx.restore(); ctx.restore(); return; }
+      ctx.save();
+      ctx.rotate(i*(Math.PI*2/spikes));
+      ctx.beginPath();
+      ctx.moveTo(0,-s*0.2);
+      ctx.lineTo(s*0.55,0);
+      ctx.lineTo(0,s*0.55);
+      ctx.lineTo(-s*0.55,0);
+      ctx.closePath();
+      ctx.fillStyle=color;
+      ctx.fill();
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+
+  if(ratio>=1){
+    ctx.beginPath();
+    ctx.arc(0,0,10,0,Math.PI*2);
+    ctx.fillStyle="#d94b6b";
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+function drawSpikes(ratio) {
+  const outerR = spikeRadius + 40;
+  const innerR = spikeRadius; 
+  const n = 120; 
+  const max = Math.floor(n * ratio);
+
+  for (let i = 0; i < max; i++) {
+    const a = (i / n) * Math.PI * 2;
+    const x1 = cx + Math.cos(a) * innerR;
+    const y1 = cy + Math.sin(a) * innerR;
+    const x2 = cx + Math.cos(a + 0.5 * (2 * Math.PI / n)) * outerR;
+    const y2 = cy + Math.sin(a + 0.5 * (2 * Math.PI / n)) * outerR;
+
+    ctx.beginPath();
+    ctx.moveTo(cx + Math.cos(a) * outerR, cy + Math.sin(a) * outerR);
+    ctx.lineTo(x2, y2);
+    ctx.lineTo(x1, y1);
+    ctx.closePath();
+    ctx.fillStyle = (i % 2 === 0) ? palette[2] : palette[3]; 
+    ctx.fill();
+  }
+}
+
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+
+  
+  ctx.beginPath();
+  ctx.arc(cx,cy,390,0,Math.PI*2);
+  ctx.fillStyle="#fefcf6";
+  ctx.fill();
+
+  if(progress < 0.3){
+  drawSpikes(progress/0.3);
+} else {
+  drawSpikes(1);
+}
+
+  if(progress>0.3 && progress<0.6){
+    const p=(progress-0.3)/0.3;
+    const petals=8;
+    for(let i=0;i<petals;i++){
+      drawPetal((i/petals)*360,160,260,6,p);
+    }
+  } else if(progress>=0.6){
+    const petals=8;
+    for(let i=0;i<petals;i++){
+      drawPetal((i/petals)*360,160,260,6,1);
+    }
+  }
+
+  if(progress>0.6){
+    const p=(progress-0.6)/0.4;
+    drawStar(p);
+  }
+}
+
+function animate(){
+  if(progress<1){
+    progress+=speed;
+    draw();
+    requestAnimationFrame(animate);
+  } else {
+    draw();
+  }
+}
+
+animate();
+</script>
+</body>
+</html>
