@@ -3,7 +3,7 @@
 ## 👨‍💻 About Me
 - **Name:** Steven Binu
 - **Institution/Company:** MBCCET Peermade
-- **GitHub:** @stevenbinu
+- **GitHub:** [@stevenbinu] (https://github.com/stevenbinu)
 - **Programming Language Used:** HTML and JavaScript
 
 ## 🎨 My Pookalam
